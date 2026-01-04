@@ -10,10 +10,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -22,7 +20,6 @@
             --glass-bg: rgba(15, 23, 42, 0.7);
         }
 
-        /* FIX 1: Allow scrolling and set background on the root */
         body, html { 
             margin: 0; padding: 0; 
             min-height: 100%; 
@@ -33,45 +30,36 @@
             color: #f1f5f9; font-family: 'Inter', sans-serif;
         }
 
-        /* Custom Scrollbar for a cleaner look */
-        body::-webkit-scrollbar { width: 6px; }
-        body::-webkit-scrollbar-track { background: var(--bg-deep); }
-        body::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
-
         .aura-glass {
             background: var(--glass-bg);
             backdrop-filter: blur(25px);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
         }
 
+        /* FIXED NAV HEIGHT */
         nav { height: 70px; }
 
         .nav-link {
-            cursor: pointer; font-size: 0.9rem; letter-spacing: 0.15em;
-            transition: all 0.4s ease; position: relative; color: #94a3b8;
+            cursor: pointer; 
+            transition: all 0.4s ease; 
+            position: relative; 
+            color: #94a3b8;
+            white-space: nowrap; /* Prevents text from wrapping to a second line */
         }
         .nav-link:hover, .nav-link.active {
             color: var(--accent-cyan);
             text-shadow: 0 0 15px var(--accent-cyan);
         }
         .nav-link.active::after {
-            content: ''; position: absolute; bottom: -8px; left: 0;
+            content: ''; position: absolute; bottom: -5px; left: 0;
             width: 100%; height: 2px; background: var(--accent-cyan);
-            box-shadow: 0 0 10px var(--accent-cyan);
         }
 
-        /* FIX 2: Use min-height and justify-start to handle content overflow */
         .view-section {
-            display: none; 
-            min-height: 100vh; 
-            width: 100vw;
-            padding-top: 110px; /* Increased to give space below nav */
-            padding-bottom: 50px; /* Space at the bottom of the page */
-            flex-direction: column;
-            align-items: center; 
-            justify-content: flex-start; 
+            display: none; min-height: 100vh; width: 100vw;
+            padding-top: 100px; padding-bottom: 50px;
+            flex-direction: column; align-items: center; justify-content: flex-start; 
         }
         .view-section.active { display: flex; animation: fadeIn 0.5s ease-in-out; }
 
@@ -81,57 +69,56 @@
         }
 
         .metric-bar { height: 6px; background: #1e293b; border-radius: 10px; overflow: hidden; }
-        .metric-fill { height: 100%; background: var(--accent-cyan); box-shadow: 0 0 15px var(--accent-cyan); transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .metric-fill { height: 100%; background: var(--accent-cyan); transition: width 0.8s ease; }
     </style>
 </head>
 <body>
 
-    <nav class="fixed top-0 w-full z-50 flex justify-between items-center px-10 backdrop-blur-lg border-b border-white/5 bg-slate-950/30">
-        <div class="flex items-center gap-4 relative">
+    <nav class="fixed top-0 w-full z-50 flex justify-between items-center px-4 md:px-10 backdrop-blur-lg border-b border-white/5 bg-slate-950/30">
+        
+        <div class="flex items-center gap-2 md:gap-4">
             <img src="images/Gemini_Generated_Image_4v3o04v3o04v3o04.png" alt="Logo" 
-                 class="w-14 h-14 object-contain filter drop-shadow-[0_0_8px_rgba(34,211,238,0.6)]">
-            <div class="ml-2 text-2xl font-extrabold tracking-tighter text-white">AURASYNC</div>
+                 class="w-10 h-10 md:w-14 md:h-14 object-contain filter drop-shadow-[0_0_8px_rgba(34,211,238,0.6)]">
+            <div class="text-lg md:text-2xl font-extrabold tracking-tighter text-white">AURASYNC</div>
         </div>
         
-        <div class="flex gap-10 font-bold">
-            <div onclick="showView('checkin')" id="nav-checkin" class="nav-link active uppercase">Check-In</div>
-            <div onclick="showView('history')" id="nav-history" class="nav-link uppercase">History</div>
+        <div class="flex gap-4 md:gap-10 font-bold">
+            <div onclick="showView('checkin')" id="nav-checkin" class="nav-link active uppercase text-[10px] md:text-xs tracking-widest">Check-In</div>
+            <div onclick="showView('history')" id="nav-history" class="nav-link uppercase text-[10px] md:text-xs tracking-widest">History</div>
         </div>
     </nav>
 
     <main id="checkin-view" class="view-section active px-4">
         <header class="text-center mb-8">
-            <h1 class="text-5xl font-extrabold mb-1 tracking-tight">Your system is <span id="status-text" class="text-cyan-400">Idle</span></h1>
-            <p class="text-slate-400 text-[10px] tracking-[0.3em] uppercase opacity-70">Affective HCI Interface • v2.0</p>
+            <h1 class="text-3xl md:text-5xl font-extrabold mb-1 tracking-tight">Your system is <span id="status-text" class="text-cyan-400">Idle</span></h1>
+            <p class="text-slate-400 text-[8px] md:text-[10px] tracking-[0.3em] uppercase opacity-70">Affective HCI Interface</p>
         </header>
 
         <div class="w-full max-w-4xl flex flex-col gap-5">
-            <div class="aura-glass p-5 relative flex flex-col items-center">
-                <span class="text-[8px] tracking-[0.3em] uppercase text-slate-500 self-start mb-3">Optical Stream Input</span>
-                <div id="video-wrapper" class="relative w-full h-[320px] bg-black/40 rounded-xl border border-slate-800 flex items-center justify-center overflow-hidden">
+            <div class="aura-glass p-4 md:p-5 relative flex flex-col items-center">
+                <div id="video-wrapper" class="relative w-full h-[250px] md:h-[320px] bg-black/40 rounded-xl border border-slate-800 flex items-center justify-center overflow-hidden">
                     <video id="video" autoplay muted class="w-full h-full object-cover rounded-xl hidden"></video>
                     <div id="scan-overlay" class="absolute inset-0 hidden flex flex-col items-center justify-center bg-slate-950/80 z-20">
-                        <div id="countdown-timer" class="text-7xl font-black text-cyan-400">10</div>
+                        <div id="countdown-timer" class="text-5xl md:text-7xl font-black text-cyan-400">10</div>
                     </div>
-                    <button id="camera-btn" onclick="initCamera()" class="z-10 border border-cyan-500/30 text-cyan-400 px-8 py-3 rounded-full hover:bg-cyan-500 hover:text-black transition-all font-bold uppercase text-[10px] tracking-widest bg-cyan-900/10">Initialize Sensor</button>
-                    <button id="start-scan-btn" onclick="startAffectiveScan()" class="hidden absolute bottom-6 z-10 bg-cyan-500 text-black px-10 py-3 rounded-full font-black hover:bg-cyan-300 transition-all uppercase tracking-widest text-[10px]">Start Scan</button>
+                    <button id="camera-btn" onclick="initCamera()" class="z-10 border border-cyan-500/30 text-cyan-400 px-6 py-2 rounded-full hover:bg-cyan-500 hover:text-black transition-all font-bold uppercase text-[9px] tracking-widest">Initialize Sensor</button>
+                    <button id="start-scan-btn" onclick="startAffectiveScan()" class="hidden absolute bottom-6 z-10 bg-cyan-500 text-black px-8 py-2 rounded-full font-black uppercase tracking-widest text-[9px]">Start Scan</button>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                <div class="aura-glass p-6 lg:col-span-2 flex flex-col justify-center items-center text-center min-h-[120px]">
-                    <span class="text-[8px] tracking-[0.3em] uppercase text-slate-500 mb-2">System Response</span>
-                    <p id="quote-text" class="text-xl font-light italic text-slate-100">"Waiting for user baseline..."</p>
+                <div class="aura-glass p-6 lg:col-span-2 flex flex-col justify-center items-center text-center">
+                    <p id="quote-text" class="text-lg md:text-xl font-light italic text-slate-100">"Waiting for user baseline..."</p>
                 </div>
                 <div class="flex flex-col gap-3">
-                    <div class="aura-glass px-5 py-3 rounded-[18px]">
-                        <span class="text-[8px] uppercase text-slate-500 tracking-widest">Valence</span>
-                        <div class="text-2xl font-black text-white" id="val-num">0.00</div>
+                    <div class="aura-glass px-5 py-3">
+                        <span class="text-[8px] uppercase text-slate-500">Valence</span>
+                        <div class="text-xl md:text-2xl font-black text-white" id="val-num">0.00</div>
                         <div class="metric-bar mt-1"><div id="val-bar" class="metric-fill" style="width: 0%"></div></div>
                     </div>
-                    <div class="aura-glass px-5 py-3 rounded-[18px]">
-                        <span class="text-[8px] uppercase text-slate-500 tracking-widest">Arousal</span>
-                        <div class="text-2xl font-black text-white" id="aro-num">0.00</div>
+                    <div class="aura-glass px-5 py-3">
+                        <span class="text-[8px] uppercase text-slate-500">Arousal</span>
+                        <div class="text-xl md:text-2xl font-black text-white" id="aro-num">0.00</div>
                         <div class="metric-bar mt-1"><div id="aro-bar" class="metric-fill" style="width: 0%"></div></div>
                     </div>
                 </div>
@@ -139,27 +126,13 @@
         </div>
     </main>
 
-    <section id="history-view" class="view-section px-4">
-        <div class="max-w-4xl w-full flex flex-col gap-4">
-            <div class="aura-glass p-8 min-h-[500px] flex flex-col">
-                <div class="flex justify-between items-start mb-6">
-                    <h2 class="text-3xl font-black tracking-tight">Affective History</h2>
-                    <button onclick="downloadPDF()" class="bg-cyan-500/10 hover:bg-cyan-500 text-cyan-400 hover:text-black border border-cyan-500/20 px-6 py-2 rounded-full text-[9px] font-black tracking-widest transition-all uppercase">Export</button>
-                </div>
-                <div class="flex-grow flex justify-center items-center">
-                    <canvas id="radarChart" style="max-height: 400px;"></canvas>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <script>
         function showView(viewName) {
             document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
             document.getElementById(viewName + '-view').classList.add('active');
             document.getElementById('nav-' + viewName).classList.add('active');
-            window.scrollTo(0, 0); // Reset scroll position when switching tabs
+            window.scrollTo(0,0);
         }
 
         async function initCamera() {
@@ -181,50 +154,10 @@
                 count--; timer.innerText = count;
                 if(count <= 0) { 
                     clearInterval(i); overlay.classList.add('hidden'); 
-                    updateMockData();
+                    document.getElementById('status-text').innerText = "Calm";
                 }
             }, 1000);
         }
-
-        function updateMockData() {
-            const mood = ["Happy", "Focus", "Calm", "Sad", "Confused"][Math.floor(Math.random()*5)];
-            document.getElementById('status-text').innerText = mood;
-            const v = Math.random(); const a = Math.random();
-            document.getElementById('val-num').innerText = v.toFixed(2);
-            document.getElementById('val-bar').style.width = (v*100)+'%';
-            document.getElementById('aro-num').innerText = a.toFixed(2);
-            document.getElementById('aro-bar').style.width = (a*100)+'%';
-            chart.data.datasets[0].data = Array.from({length: 6}, () => Math.random()*100);
-            chart.update();
-        }
-
-        const ctx = document.getElementById('radarChart').getContext('2d');
-        const chart = new Chart(ctx, {
-            type: 'radar',
-            data: { 
-                labels: ['Focus', 'Joy', 'Stress', 'Calm', 'Confusion', 'Sadness'], 
-                datasets: [{ 
-                    data: [0,0,0,0,0,0], 
-                    borderColor: '#22d3ee', 
-                    backgroundColor: 'rgba(34,211,238,0.1)',
-                    borderWidth: 2,
-                    pointBackgroundColor: '#22d3ee'
-                }] 
-            },
-            options: { 
-                responsive: true, 
-                maintainAspectRatio: false, 
-                scales: { 
-                    r: { 
-                        grid: { color: 'rgba(255, 255, 255, 0.1)' }, 
-                        angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
-                        ticks: { display: false },
-                        pointLabels: { color: '#94a3b8', font: { size: 12 } }
-                    } 
-                }, 
-                plugins: { legend: { display: false } } 
-            }
-        });
     </script>
 </body>
 </html>
