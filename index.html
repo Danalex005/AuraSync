@@ -8,7 +8,6 @@
     <link rel="icon" type="image/png" href="images/Gemini_Generated_Image_4v3o04v3o04v3o04.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
@@ -22,10 +21,8 @@
 
         body, html { 
             margin: 0; padding: 0; 
-            min-height: 100%; 
-            width: 100%; 
-            overflow-x: hidden;
-            overflow-y: auto; 
+            min-height: 100%; width: 100%; 
+            overflow-x: hidden; overflow-y: auto; 
             background-color: var(--bg-deep);
             color: #f1f5f9; font-family: 'Inter', sans-serif;
         }
@@ -37,15 +34,11 @@
             border-radius: 24px;
         }
 
-        /* FIXED NAV HEIGHT */
         nav { height: 70px; }
 
         .nav-link {
-            cursor: pointer; 
-            transition: all 0.4s ease; 
-            position: relative; 
-            color: #94a3b8;
-            white-space: nowrap; /* Prevents text from wrapping to a second line */
+            cursor: pointer; transition: all 0.4s ease; 
+            position: relative; color: #94a3b8; white-space: nowrap;
         }
         .nav-link:hover, .nav-link.active {
             color: var(--accent-cyan);
@@ -56,12 +49,14 @@
             width: 100%; height: 2px; background: var(--accent-cyan);
         }
 
+        /* View Management */
         .view-section {
-            display: none; min-height: 100vh; width: 100vw;
+            display: none; /* Hidden by default */
+            min-height: 100vh; width: 100vw;
             padding-top: 100px; padding-bottom: 50px;
             flex-direction: column; align-items: center; justify-content: flex-start; 
         }
-        .view-section.active { display: flex; animation: fadeIn 0.5s ease-in-out; }
+        .view-section.active { display: flex !important; animation: fadeIn 0.5s ease-in-out; }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -75,10 +70,8 @@
 <body>
 
     <nav class="fixed top-0 w-full z-50 flex justify-between items-center px-4 md:px-10 backdrop-blur-lg border-b border-white/5 bg-slate-950/30">
-        
         <div class="flex items-center gap-2 md:gap-4">
-            <img src="images/Gemini_Generated_Image_4v3o04v3o04v3o04.png" alt="Logo" 
-                 class="w-10 h-10 md:w-14 md:h-14 object-contain filter drop-shadow-[0_0_8px_rgba(34,211,238,0.6)]">
+            <img src="images/Gemini_Generated_Image_4v3o04v3o04v3o04.png" alt="Logo" class="w-10 h-10 md:w-14 md:h-14 object-contain">
             <div class="text-lg md:text-2xl font-extrabold tracking-tighter text-white">AURASYNC</div>
         </div>
         
@@ -91,24 +84,20 @@
     <main id="checkin-view" class="view-section active px-4">
         <header class="text-center mb-8">
             <h1 class="text-3xl md:text-5xl font-extrabold mb-1 tracking-tight">Your system is <span id="status-text" class="text-cyan-400">Idle</span></h1>
-            <p class="text-slate-400 text-[8px] md:text-[10px] tracking-[0.3em] uppercase opacity-70">Affective HCI Interface</p>
+            <p class="text-slate-400 text-[8px] md:text-[10px] tracking-[0.3em] uppercase opacity-70">Affective HCI Interface • V2.0</p>
         </header>
 
         <div class="w-full max-w-4xl flex flex-col gap-5">
-            <div class="aura-glass p-4 md:p-5 relative flex flex-col items-center">
+            <div class="aura-glass p-4 md:p-5 flex flex-col items-center">
                 <div id="video-wrapper" class="relative w-full h-[250px] md:h-[320px] bg-black/40 rounded-xl border border-slate-800 flex items-center justify-center overflow-hidden">
                     <video id="video" autoplay muted class="w-full h-full object-cover rounded-xl hidden"></video>
-                    <div id="scan-overlay" class="absolute inset-0 hidden flex flex-col items-center justify-center bg-slate-950/80 z-20">
-                        <div id="countdown-timer" class="text-5xl md:text-7xl font-black text-cyan-400">10</div>
-                    </div>
                     <button id="camera-btn" onclick="initCamera()" class="z-10 border border-cyan-500/30 text-cyan-400 px-6 py-2 rounded-full hover:bg-cyan-500 hover:text-black transition-all font-bold uppercase text-[9px] tracking-widest">Initialize Sensor</button>
-                    <button id="start-scan-btn" onclick="startAffectiveScan()" class="hidden absolute bottom-6 z-10 bg-cyan-500 text-black px-8 py-2 rounded-full font-black uppercase tracking-widest text-[9px]">Start Scan</button>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                <div class="aura-glass p-6 lg:col-span-2 flex flex-col justify-center items-center text-center">
-                    <p id="quote-text" class="text-lg md:text-xl font-light italic text-slate-100">"Waiting for user baseline..."</p>
+                <div class="aura-glass p-6 lg:col-span-2 flex items-center justify-center text-center">
+                    <p id="quote-text" class="text-lg md:text-xl font-light italic text-slate-100">"Ready to synchronize with your emotional baseline."</p>
                 </div>
                 <div class="flex flex-col gap-3">
                     <div class="aura-glass px-5 py-3">
@@ -126,13 +115,40 @@
         </div>
     </main>
 
+    <section id="history-view" class="view-section px-4">
+        <div class="max-w-4xl w-full">
+            <div class="aura-glass p-6 md:p-10 flex flex-col min-h-[500px]">
+                <h2 class="text-3xl font-black tracking-tight mb-6">Affective History</h2>
+                <div class="relative flex-grow flex items-center justify-center">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <script>
+        let radarChart;
+
         function showView(viewName) {
-            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
-            document.getElementById(viewName + '-view').classList.add('active');
+            // 1. Hide all sections
+            document.getElementById('checkin-view').classList.remove('active');
+            document.getElementById('history-view').classList.remove('active');
+            
+            // 2. Deactivate all nav links
+            document.getElementById('nav-checkin').classList.remove('active');
+            document.getElementById('nav-history').classList.remove('active');
+
+            // 3. Show selected section
+            const activeView = document.getElementById(viewName + '-view');
+            activeView.classList.add('active');
             document.getElementById('nav-' + viewName).classList.add('active');
-            window.scrollTo(0,0);
+
+            // 4. Force Chart Update if switching to History
+            if(viewName === 'history' && radarChart) {
+                setTimeout(() => radarChart.update(), 100);
+            }
+            
+            window.scrollTo(0, 0);
         }
 
         async function initCamera() {
@@ -141,23 +157,38 @@
                 const s = await navigator.mediaDevices.getUserMedia({ video: true });
                 v.srcObject = s; v.classList.remove('hidden');
                 document.getElementById('camera-btn').classList.add('hidden');
-                document.getElementById('start-scan-btn').classList.remove('hidden');
             } catch (e) { alert("Camera error"); }
         }
 
-        function startAffectiveScan() {
-            const overlay = document.getElementById('scan-overlay');
-            const timer = document.getElementById('countdown-timer');
-            let count = 10;
-            overlay.classList.remove('hidden');
-            const i = setInterval(() => {
-                count--; timer.innerText = count;
-                if(count <= 0) { 
-                    clearInterval(i); overlay.classList.add('hidden'); 
-                    document.getElementById('status-text').innerText = "Calm";
+        // Initialize Chart on Load
+        window.onload = () => {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            radarChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Focus', 'Joy', 'Stress', 'Calm', 'Confusion', 'Sadness'],
+                    datasets: [{
+                        label: 'Emotional State',
+                        data: [65, 59, 30, 81, 40, 20],
+                        borderColor: '#22d3ee',
+                        backgroundColor: 'rgba(34,211,238,0.2)',
+                        pointBackgroundColor: '#22d3ee'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            angleLines: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { display: false }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
                 }
-            }, 1000);
-        }
+            });
+        };
     </script>
 </body>
 </html>
