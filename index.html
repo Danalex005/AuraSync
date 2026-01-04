@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AuraSync | Affective HCI System</title>
 
-    <link rel="icon" type="image/png" href="images\Gemini_Generated_Image_4v3o04v3o04v3o04.png">
+    <link rel="icon" type="image/png" href="images/Gemini_Generated_Image_4v3o04v3o04v3o04.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
@@ -22,11 +22,21 @@
             --glass-bg: rgba(15, 23, 42, 0.7);
         }
 
+        /* FIX 1: Allow scrolling and set background on the root */
         body, html { 
-            margin: 0; padding: 0; height: 100vh; width: 100vw; 
-            overflow: hidden; background-color: var(--bg-deep);
+            margin: 0; padding: 0; 
+            min-height: 100%; 
+            width: 100%; 
+            overflow-x: hidden;
+            overflow-y: auto; 
+            background-color: var(--bg-deep);
             color: #f1f5f9; font-family: 'Inter', sans-serif;
         }
+
+        /* Custom Scrollbar for a cleaner look */
+        body::-webkit-scrollbar { width: 6px; }
+        body::-webkit-scrollbar-track { background: var(--bg-deep); }
+        body::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
 
         .aura-glass {
             background: var(--glass-bg);
@@ -36,10 +46,7 @@
             border-radius: 24px;
         }
 
-        /* FIXED NAV HEIGHT */
-        nav {
-            height: 70px; /* Forces the nav to stay slim */
-        }
+        nav { height: 70px; }
 
         .nav-link {
             cursor: pointer; font-size: 0.9rem; letter-spacing: 0.15em;
@@ -55,10 +62,16 @@
             box-shadow: 0 0 10px var(--accent-cyan);
         }
 
+        /* FIX 2: Use min-height and justify-start to handle content overflow */
         .view-section {
-            display: none; height: 100vh; width: 100vw;
-            padding-top: 80px; flex-direction: column;
-            align-items: center; justify-content: center;
+            display: none; 
+            min-height: 100vh; 
+            width: 100vw;
+            padding-top: 110px; /* Increased to give space below nav */
+            padding-bottom: 50px; /* Space at the bottom of the page */
+            flex-direction: column;
+            align-items: center; 
+            justify-content: flex-start; 
         }
         .view-section.active { display: flex; animation: fadeIn 0.5s ease-in-out; }
 
@@ -73,12 +86,11 @@
 </head>
 <body>
 
-    <nav class="fixed top-0 w-full z-50 flex justify-between items-center px-10 backdrop-blur-lg border-b border-white/5">
+    <nav class="fixed top-0 w-full z-50 flex justify-between items-center px-10 backdrop-blur-lg border-b border-white/5 bg-slate-950/30">
         <div class="flex items-center gap-4 relative">
             <img src="images/Gemini_Generated_Image_4v3o04v3o04v3o04.png" alt="Logo" 
-                 class="absolute left-0 w-16 h-16 object-contain filter drop-shadow-[0_0_8px_rgba(34,211,238,0.6)]">
-            
-            <div class="ml-16 text-2xl font-extrabold tracking-tighter text-white">AURASYNC</div>
+                 class="w-14 h-14 object-contain filter drop-shadow-[0_0_8px_rgba(34,211,238,0.6)]">
+            <div class="ml-2 text-2xl font-extrabold tracking-tighter text-white">AURASYNC</div>
         </div>
         
         <div class="flex gap-10 font-bold">
@@ -88,7 +100,7 @@
     </nav>
 
     <main id="checkin-view" class="view-section active px-4">
-        <header class="text-center mb-6">
+        <header class="text-center mb-8">
             <h1 class="text-5xl font-extrabold mb-1 tracking-tight">Your system is <span id="status-text" class="text-cyan-400">Idle</span></h1>
             <p class="text-slate-400 text-[10px] tracking-[0.3em] uppercase opacity-70">Affective HCI Interface • v2.0</p>
         </header>
@@ -96,7 +108,7 @@
         <div class="w-full max-w-4xl flex flex-col gap-5">
             <div class="aura-glass p-5 relative flex flex-col items-center">
                 <span class="text-[8px] tracking-[0.3em] uppercase text-slate-500 self-start mb-3">Optical Stream Input</span>
-                <div id="video-wrapper" class="relative w-full h-[300px] bg-black/40 rounded-xl border border-slate-800 flex items-center justify-center overflow-hidden">
+                <div id="video-wrapper" class="relative w-full h-[320px] bg-black/40 rounded-xl border border-slate-800 flex items-center justify-center overflow-hidden">
                     <video id="video" autoplay muted class="w-full h-full object-cover rounded-xl hidden"></video>
                     <div id="scan-overlay" class="absolute inset-0 hidden flex flex-col items-center justify-center bg-slate-950/80 z-20">
                         <div id="countdown-timer" class="text-7xl font-black text-cyan-400">10</div>
@@ -107,18 +119,18 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                <div class="aura-glass p-6 lg:col-span-2 flex flex-col justify-center items-center text-center min-h-[110px]">
+                <div class="aura-glass p-6 lg:col-span-2 flex flex-col justify-center items-center text-center min-h-[120px]">
                     <span class="text-[8px] tracking-[0.3em] uppercase text-slate-500 mb-2">System Response</span>
                     <p id="quote-text" class="text-xl font-light italic text-slate-100">"Waiting for user baseline..."</p>
                 </div>
                 <div class="flex flex-col gap-3">
                     <div class="aura-glass px-5 py-3 rounded-[18px]">
-                        <span class="text-[8px] uppercase text-slate-500">Valence</span>
+                        <span class="text-[8px] uppercase text-slate-500 tracking-widest">Valence</span>
                         <div class="text-2xl font-black text-white" id="val-num">0.00</div>
                         <div class="metric-bar mt-1"><div id="val-bar" class="metric-fill" style="width: 0%"></div></div>
                     </div>
                     <div class="aura-glass px-5 py-3 rounded-[18px]">
-                        <span class="text-[8px] uppercase text-slate-500">Arousal</span>
+                        <span class="text-[8px] uppercase text-slate-500 tracking-widest">Arousal</span>
                         <div class="text-2xl font-black text-white" id="aro-num">0.00</div>
                         <div class="metric-bar mt-1"><div id="aro-bar" class="metric-fill" style="width: 0%"></div></div>
                     </div>
@@ -129,28 +141,27 @@
 
     <section id="history-view" class="view-section px-4">
         <div class="max-w-4xl w-full flex flex-col gap-4">
-            <div class="aura-glass p-8 h-[75vh] flex flex-col">
-                <div class="flex justify-between items-start mb-4">
+            <div class="aura-glass p-8 min-h-[500px] flex flex-col">
+                <div class="flex justify-between items-start mb-6">
                     <h2 class="text-3xl font-black tracking-tight">Affective History</h2>
-                    <button onclick="downloadPDF()" class="bg-cyan-500/10 hover:bg-cyan-500 text-cyan-400 hover:text-black border border-cyan-500/20 px-6 py-2 rounded-full text-[9px] font-black tracking-widest transition-all">Export</button>
+                    <button onclick="downloadPDF()" class="bg-cyan-500/10 hover:bg-cyan-500 text-cyan-400 hover:text-black border border-cyan-500/20 px-6 py-2 rounded-full text-[9px] font-black tracking-widest transition-all uppercase">Export</button>
                 </div>
-                <div class="flex-grow flex justify-center items-center overflow-hidden">
-                    <canvas id="radarChart"></canvas>
+                <div class="flex-grow flex justify-center items-center">
+                    <canvas id="radarChart" style="max-height: 400px;"></canvas>
                 </div>
             </div>
         </div>
     </section>
 
     <script>
-        // Tab Switching
         function showView(viewName) {
             document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
             document.getElementById(viewName + '-view').classList.add('active');
             document.getElementById('nav-' + viewName).classList.add('active');
+            window.scrollTo(0, 0); // Reset scroll position when switching tabs
         }
 
-        // Camera Logic
         async function initCamera() {
             const v = document.getElementById('video');
             try {
@@ -161,7 +172,6 @@
             } catch (e) { alert("Camera error"); }
         }
 
-        // Scan Logic
         function startAffectiveScan() {
             const overlay = document.getElementById('scan-overlay');
             const timer = document.getElementById('countdown-timer');
@@ -188,14 +198,33 @@
             chart.update();
         }
 
-        // Chart init
         const ctx = document.getElementById('radarChart').getContext('2d');
         const chart = new Chart(ctx, {
             type: 'radar',
-            data: { labels: ['Focus', 'Joy', 'Stress', 'Calm', 'Confusion', 'Sadness'], datasets: [{ data: [0,0,0,0,0,0], borderColor: '#22d3ee', backgroundColor: 'rgba(34,211,238,0.1)' }] },
-            options: { responsive: true, maintainAspectRatio: false, scales: { r: { grid: { color: '#1e293b' }, ticks: { display: false } } }, plugins: { legend: { display: false } } }
+            data: { 
+                labels: ['Focus', 'Joy', 'Stress', 'Calm', 'Confusion', 'Sadness'], 
+                datasets: [{ 
+                    data: [0,0,0,0,0,0], 
+                    borderColor: '#22d3ee', 
+                    backgroundColor: 'rgba(34,211,238,0.1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#22d3ee'
+                }] 
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                scales: { 
+                    r: { 
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }, 
+                        angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                        ticks: { display: false },
+                        pointLabels: { color: '#94a3b8', font: { size: 12 } }
+                    } 
+                }, 
+                plugins: { legend: { display: false } } 
+            }
         });
     </script>
 </body>
-
 </html>
