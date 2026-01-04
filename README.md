@@ -1,0 +1,2 @@
+# AuraSync
+Emotion Detector
