@@ -49,9 +49,8 @@
             width: 100%; height: 2px; background: var(--accent-cyan);
         }
 
-        /* View Management */
         .view-section {
-            display: none; /* Hidden by default */
+            display: none;
             min-height: 100vh; width: 100vw;
             padding-top: 100px; padding-bottom: 50px;
             flex-direction: column; align-items: center; justify-content: flex-start; 
@@ -64,7 +63,7 @@
         }
 
         .metric-bar { height: 6px; background: #1e293b; border-radius: 10px; overflow: hidden; }
-        .metric-fill { height: 100%; background: var(--accent-cyan); transition: width 0.8s ease; }
+        .metric-fill { height: 100%; width: 0%; background: var(--accent-cyan); transition: width 0.8s ease; }
     </style>
 </head>
 <body>
@@ -88,27 +87,36 @@
         </header>
 
         <div class="w-full max-w-4xl flex flex-col gap-5">
-            <div class="aura-glass p-4 md:p-5 flex flex-col items-center">
+            <div class="aura-glass p-4 md:p-5 flex flex-col items-center relative">
+                <span class="text-[8px] tracking-[0.3em] uppercase text-slate-500 self-start mb-3">Optical Stream Input</span>
                 <div id="video-wrapper" class="relative w-full h-[250px] md:h-[320px] bg-black/40 rounded-xl border border-slate-800 flex items-center justify-center overflow-hidden">
                     <video id="video" autoplay muted class="w-full h-full object-cover rounded-xl hidden"></video>
+                    
+                    <div id="scan-overlay" class="absolute inset-0 hidden flex flex-col items-center justify-center bg-slate-950/80 z-20">
+                        <div id="countdown-timer" class="text-6xl md:text-8xl font-black text-cyan-400">10</div>
+                        <div class="text-[10px] tracking-[0.4em] uppercase text-cyan-500/50 mt-4 animate-pulse">Analyzing Biometrics</div>
+                    </div>
+
                     <button id="camera-btn" onclick="initCamera()" class="z-10 border border-cyan-500/30 text-cyan-400 px-6 py-2 rounded-full hover:bg-cyan-500 hover:text-black transition-all font-bold uppercase text-[9px] tracking-widest">Initialize Sensor</button>
+                    <button id="start-scan-btn" onclick="startAffectiveScan()" class="hidden absolute bottom-6 z-10 bg-cyan-500 text-black px-10 py-3 rounded-full font-black hover:bg-cyan-300 transition-all uppercase tracking-widest text-[10px]">Start Scan</button>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                <div class="aura-glass p-6 lg:col-span-2 flex items-center justify-center text-center">
+                <div class="aura-glass p-6 lg:col-span-2 flex flex-col items-center justify-center text-center">
+                    <span class="text-[8px] tracking-[0.3em] uppercase text-slate-500 mb-2">System Response</span>
                     <p id="quote-text" class="text-lg md:text-xl font-light italic text-slate-100">"Ready to synchronize with your emotional baseline."</p>
                 </div>
                 <div class="flex flex-col gap-3">
                     <div class="aura-glass px-5 py-3">
                         <span class="text-[8px] uppercase text-slate-500">Valence</span>
                         <div class="text-xl md:text-2xl font-black text-white" id="val-num">0.00</div>
-                        <div class="metric-bar mt-1"><div id="val-bar" class="metric-fill" style="width: 0%"></div></div>
+                        <div class="metric-bar mt-1"><div id="val-bar" class="metric-fill"></div></div>
                     </div>
                     <div class="aura-glass px-5 py-3">
                         <span class="text-[8px] uppercase text-slate-500">Arousal</span>
                         <div class="text-xl md:text-2xl font-black text-white" id="aro-num">0.00</div>
-                        <div class="metric-bar mt-1"><div id="aro-bar" class="metric-fill" style="width: 0%"></div></div>
+                        <div class="metric-bar mt-1"><div id="aro-bar" class="metric-fill"></div></div>
                     </div>
                 </div>
             </div>
@@ -130,37 +138,85 @@
         let radarChart;
 
         function showView(viewName) {
-            // 1. Hide all sections
             document.getElementById('checkin-view').classList.remove('active');
             document.getElementById('history-view').classList.remove('active');
-            
-            // 2. Deactivate all nav links
             document.getElementById('nav-checkin').classList.remove('active');
             document.getElementById('nav-history').classList.remove('active');
 
-            // 3. Show selected section
             const activeView = document.getElementById(viewName + '-view');
             activeView.classList.add('active');
             document.getElementById('nav-' + viewName).classList.add('active');
 
-            // 4. Force Chart Update if switching to History
             if(viewName === 'history' && radarChart) {
                 setTimeout(() => radarChart.update(), 100);
             }
-            
             window.scrollTo(0, 0);
         }
 
         async function initCamera() {
             const v = document.getElementById('video');
+            const startBtn = document.getElementById('start-scan-btn');
+            const initBtn = document.getElementById('camera-btn');
             try {
                 const s = await navigator.mediaDevices.getUserMedia({ video: true });
-                v.srcObject = s; v.classList.remove('hidden');
-                document.getElementById('camera-btn').classList.add('hidden');
-            } catch (e) { alert("Camera error"); }
+                v.srcObject = s; 
+                v.classList.remove('hidden');
+                initBtn.classList.add('hidden');
+                startBtn.classList.remove('hidden');
+            } catch (e) { 
+                alert("Camera Access Denied: Please check permissions."); 
+            }
         }
 
-        // Initialize Chart on Load
+        function startAffectiveScan() {
+            const overlay = document.getElementById('scan-overlay');
+            const timerDisplay = document.getElementById('countdown-timer');
+            const startBtn = document.getElementById('start-scan-btn');
+            let count = 10;
+
+            overlay.classList.remove('hidden');
+            startBtn.classList.add('hidden');
+
+            const interval = setInterval(() => {
+                count--;
+                timerDisplay.innerText = count;
+                if(count <= 0) { 
+                    clearInterval(interval);
+                    overlay.classList.add('hidden'); 
+                    startBtn.classList.remove('hidden');
+                    updateMetrics();
+                }
+            }, 1000);
+        }
+
+        function updateMetrics() {
+            const moods = ["Happy", "Focused", "Calm", "Relaxed", "Engaged"];
+            const quotes = [
+                "Baseline synchronized. Optimal flow state detected.",
+                "Cognitive load balanced. System responsive.",
+                "Emotional valence stable. Continuing monitoring.",
+                "Positive engagement peak identified."
+            ];
+            
+            const v = Math.random();
+            const a = Math.random();
+
+            document.getElementById('status-text').innerText = moods[Math.floor(Math.random() * moods.length)];
+            document.getElementById('quote-text').innerText = `"${quotes[Math.floor(Math.random() * quotes.length)]}"`;
+            
+            document.getElementById('val-num').innerText = v.toFixed(2);
+            document.getElementById('val-bar').style.width = (v * 100) + '%';
+            
+            document.getElementById('aro-num').innerText = a.toFixed(2);
+            document.getElementById('aro-bar').style.width = (a * 100) + '%';
+
+            // Update History Graph with new random data
+            if(radarChart) {
+                radarChart.data.datasets[0].data = Array.from({length: 6}, () => Math.floor(Math.random() * 100));
+                radarChart.update();
+            }
+        }
+
         window.onload = () => {
             const ctx = document.getElementById('radarChart').getContext('2d');
             radarChart = new Chart(ctx, {
@@ -169,10 +225,11 @@
                     labels: ['Focus', 'Joy', 'Stress', 'Calm', 'Confusion', 'Sadness'],
                     datasets: [{
                         label: 'Emotional State',
-                        data: [65, 59, 30, 81, 40, 20],
+                        data: [20, 20, 20, 20, 20, 20],
                         borderColor: '#22d3ee',
                         backgroundColor: 'rgba(34,211,238,0.2)',
-                        pointBackgroundColor: '#22d3ee'
+                        pointBackgroundColor: '#22d3ee',
+                        borderWidth: 2
                     }]
                 },
                 options: {
@@ -180,9 +237,10 @@
                     maintainAspectRatio: false,
                     scales: {
                         r: {
-                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            grid: { color: 'rgba(255,255,255,0.05)' },
                             angleLines: { color: 'rgba(255,255,255,0.1)' },
-                            ticks: { display: false }
+                            ticks: { display: false },
+                            pointLabels: { color: '#94a3b8', font: { size: 10 } }
                         }
                     },
                     plugins: { legend: { display: false } }
